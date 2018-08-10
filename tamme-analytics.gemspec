@@ -6,22 +6,17 @@ require "tamme/analytics/version"
 Gem::Specification.new do |spec|
   spec.name          = "tamme-analytics"
   spec.version       = Tamme::Analytics::VERSION
-  spec.authors       = ["Hen-Chow"]
-  spec.email         = ["henchow@gmail.com"]
+  spec.authors       = ["Tamme"]
+  spec.email         = ["libraries@tamme.io"]
 
-  spec.summary       = %q{TODO: Write a short summary, because RubyGems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = "The tamme analytics library is available on Ruby as a Ruby Gem."
+  spec.description   = "The tamme analytics library is available on Ruby as a Ruby Gem."
+  spec.homepage      = "https://github.com/tammeio/rails-tamme-analytics"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
-  else
-    raise "RubyGems 2.0 or newer is required to protect against " \
-      "public gem pushes."
-  end
+  
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
