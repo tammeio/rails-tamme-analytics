@@ -11,6 +11,9 @@ module Tamme
 
     def initialize(writekey, options)
       @write_key = writekey
+      if options == nil 
+        options = {}
+      end
       @batch = []
       @batch_size = options[:batch_size] ? options[:batch_size] : 5
       @debug = options[:debug] ? options[:debug] : false
@@ -99,9 +102,9 @@ module Tamme
       postData = params.to_json
       # puts 'post to tamem data: ', postData
       options = {
-        :hostname => 'analytics.tamme.io',
+        :hostname => 'anl.tamme.io',
         :port => 443,
-        :path => '/test/batch-upload',
+        :path => '/stream',
         :method => 'POST',
         :headers => {
             'Content-Type' => 'application/json',
