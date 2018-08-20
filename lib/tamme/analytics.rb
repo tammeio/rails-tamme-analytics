@@ -44,12 +44,8 @@ module Tamme
       base_event = {}
       traits = {}
 
-      if type(p1) === "string"
-        base_event[identity_id] = p1
+      base_event[identity_id] = p1
         traits = p2
-      else
-        traits = p1
-      end
 
       base_event[:event_type] = "identify"
       base_event[:traits] = merge(base_params, traits)
