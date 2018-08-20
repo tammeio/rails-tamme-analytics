@@ -26,6 +26,7 @@ module Tamme
       base_event[:identity_id] = identity_id
       base_event[:name] = event_name
       base_event[:traits] = merge(@base_params, traits)
+      base_event[:write_key] = @write_key
 
       if @debug
         puts 'adding event to batch: ', base_event
@@ -33,7 +34,6 @@ module Tamme
       @batch.push(base_event)
 
       if @batch.count >= @batch_size
-        # flush this immediately
         flush
       end
 
@@ -44,15 +44,14 @@ module Tamme
       base_event = {}
       traits = {}
 
-      base_event[identity_id] = identity_id
+      base_event[:identity_id] = identity_id
         traits = traits
-
+      base_event[:write_key] = @write_key
       base_event[:event_type] = "identify"
       base_event[:traits] = merge(@base_params, traits)
       @batch.push(base_event)
 
       if @batch.count >= @batch_size
-        # flush this immediately
         flush
       end
     end
@@ -63,6 +62,7 @@ module Tamme
         previous_id: previous_id,
       }
       base_event[:event_type] = "alias"
+      base_event[:write_key] = @write_key
       @batch.push(base_event)
 
       if @batch.count >= @batch_size
@@ -77,24 +77,20 @@ module Tamme
       events = @batch
       params = {
         :events => events,
-        :account_id => @write_key
+        :account_id => @write_key,
+        :write_key => @write_key,
       }
       @batch = []
-      postToTamme(self, params) { |client|
-        @flushing = false
-        if @batch.count >= @batch_size
-          flush
-        end
-        if @debug
-          puts 'post to tamme completed'
-        end
-      }
+      self.postToTamme(params)
+      @flushing = false
+      if @batch.count >= @batch_size
+        self.flush
+      end
       return "Queued"
     end
 
-    def postToTamme(analytics, params, callback)
+    def postToTamme(params)
       postData = params.to_json
-      # puts 'post to tamem data: ', postData
       options = {
         :hostname => 'anl.tamme.io',
         :port => 443,
@@ -102,40 +98,15 @@ module Tamme
         :method => 'POST',
         :headers => {
             'Content-Type' => 'application/json',
-            'Content-Length' => Buffer.byteLength(postData)
+            'Content-Length' => postData.length.to_s
         }
       }
-
       http = Net::HTTP.new(options[:hostname], options[:port])
       http.use_ssl = true
-      request = Net::HTTP:Post.new(options[:path], options[:headers])
-
-      http.request(request) { |response|
-        case response.code
-        when 200
-            # puts "STATUS: #{res.statusCode}"
-            # puts "HEADERS: #{(res.headers).to_json}"
-          response.force_encoding('utf-8')
-          response.read_body { |chunk|
-            # puts 'BODY: #{chunk}'
-            # puts 'response data: ', chunk
-          }
-          response.finish do
-            # puts 'No more data in response.'
-            callback
-          end
-          # puts 'request to flush: ', req
-        else
-          response { |e|
-          # puts 'problem with request: #{e.message}''
-          # puts 'error: ', e
-          }
-        end
-      }
-
-      # write data to request body
+      request = Net::HTTP::Post.new(options[:path], options[:headers])
       request.body = postData
-      request.finish
+      response = http.request(request)
+      http.finish if http.started?
     end
 
     def merge(*arguments)
@@ -148,13 +119,6 @@ module Tamme
         end
         
       end
-      # for i in arguments
-      #   for key in arguments[i]
-      #     if arguments[i].hasKey? key
-      #       obj[key] = arguments[i][key]
-      #     end
-      #   end
-      # end
       return obj
     end
   end
