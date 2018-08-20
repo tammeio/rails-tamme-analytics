@@ -40,12 +40,12 @@ module Tamme
       return "Completed"
     end
 
-    def identify(p1, p2)
+    def identify(identity_id, traits)
       base_event = {}
       traits = {}
 
-      base_event[identity_id] = p1
-        traits = p2
+      base_event[identity_id] = identity_id
+        traits = traits
 
       base_event[:event_type] = "identify"
       base_event[:traits] = merge(base_params, traits)
@@ -57,13 +57,11 @@ module Tamme
       end
     end
 
-    def alias(p1, p2)
+    def alias(new_id, previous_id)
       base_event = {
-        new_id: p1
+        new_id: new_id,
+        previous_id: previous_id,
       }
-      if p2
-        base_event[:previous_id] = p2
-      end
       base_event[:event_type] = "alias"
       @batch.push(base_event)
 
