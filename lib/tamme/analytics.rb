@@ -25,7 +25,7 @@ module Tamme
       base_event[:event_type] = "track"
       base_event[:identity_id] = identity_id
       base_event[:name] = event_name
-      base_event[:traits] = merge(base_params, traits)
+      base_event[:traits] = merge(@base_params, traits)
 
       if @debug
         puts 'adding event to batch: ', base_event
@@ -48,7 +48,7 @@ module Tamme
         traits = traits
 
       base_event[:event_type] = "identify"
-      base_event[:traits] = merge(base_params, traits)
+      base_event[:traits] = merge(@base_params, traits)
       @batch.push(base_event)
 
       if @batch.length >= @batch_size
