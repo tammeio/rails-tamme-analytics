@@ -15,8 +15,8 @@ module Tamme
         options = {}
       end
       @batch = []
-      @batch_size = options[:batch_size] ? options[:batch_size] : 5
-      @debug = options[:debug] ? options[:debug] : false
+      @batch_size = options[:batch_size].present? ? options[:batch_size] : 5
+      @debug = options[:debug].present? ? options[:debug] : false
       @flushing = false
     end
 
@@ -32,7 +32,7 @@ module Tamme
       end
       @batch.push(base_event)
 
-      if @batch.length >= @batch_size
+      if @batch.count >= @batch_size
         # flush this immediately
         flush
       end
@@ -51,7 +51,7 @@ module Tamme
       base_event[:traits] = merge(@base_params, traits)
       @batch.push(base_event)
 
-      if @batch.length >= @batch_size
+      if @batch.count >= @batch_size
         # flush this immediately
         flush
       end
@@ -65,7 +65,7 @@ module Tamme
       base_event[:event_type] = "alias"
       @batch.push(base_event)
 
-      if @batch.length >= @batch_size
+      if @batch.count >= @batch_size
         flush
       end
       return "Completed"
@@ -82,7 +82,7 @@ module Tamme
       @batch = []
       postToTamme(self, params) { |client|
         @flushing = false
-        if @batch.length >= @batch_size
+        if @batch.count >= @batch_size
           flush
         end
         if @debug
@@ -138,15 +138,23 @@ module Tamme
       request.finish
     end
 
-    def merge
+    def merge(*arguments)
       obj = {}
-      for i in arguments
-        for key in arguments[i]
-          if arguments[i].hasKey? key
-            obj[key] = arguments[i][key]
+      arguments.each do |arg|
+        if arg.present?
+          arg.each do |key, value|
+            obj[key] = value
           end
         end
+        
       end
+      # for i in arguments
+      #   for key in arguments[i]
+      #     if arguments[i].hasKey? key
+      #       obj[key] = arguments[i][key]
+      #     end
+      #   end
+      # end
       return obj
     end
   end
